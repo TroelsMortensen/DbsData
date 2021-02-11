@@ -1,4 +1,7 @@
-﻿namespace Goodreads.Models
+﻿using System;
+using System.Collections.Generic;
+
+namespace Goodreads.Models
 {
     public class GoodreadsItem
     {
@@ -18,18 +21,18 @@
 
         public string Binding { get; set; }
 
-        public int PageCount { get; set; }
+        public int? PageCount { get; set; }
 
-        public int YearPublished { get; set; }
+        public int? YearPublished { get; set; }
 
         public string DateRead { get; set; }
         
         // author
-        public string FirstName { get; set; }
-        public string MiddelNames { get; set; }
-        public string LastName { get; set; }
+        public string AuthorName { get; set; }
         
         // publisher
         public string PubName { get; set; }
+
+        public List<string> CoAuthorNames { get; set; }
     }
 }
