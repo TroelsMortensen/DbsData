@@ -19,7 +19,7 @@ namespace Goodreads.Conversion
                     bindings.Add(item.Binding);
                 if(!String.IsNullOrEmpty(item.ShelfName))
                     shelves.Add(item.ShelfName);
-                string itemPubName = item.PubName.Replace("'", "''");
+                string itemPubName = item.PubName;
                 if(!String.IsNullOrEmpty(itemPubName))
                     publishers.Add(itemPubName);
             }
@@ -33,21 +33,23 @@ namespace Goodreads.Conversion
             
             container.Authors = authors;
 
-            container.Books = ConvertBooks(items);
+            container.Books = ConvertBooks(items, authors);
             
             return container;
         }
 
         
 
-        private List<Book> ConvertBooks(List<GoodreadsItem> items)
+        private List<Book> ConvertBooks(List<GoodreadsItem> items, List<Author> authors)
         {
             List<Book> books = new();
             foreach (GoodreadsItem item in items)
             {
+                
+                
                 Book b = new Book
                 {
-                    Title = item.Title.Replace("'","''"),
+                    Title = item.Title,//.Replace("'","''"),
                     AvgRating = item.AvgRating,
                     BookId = item.BookId,
                     DateRead = item.DateRead,
@@ -56,16 +58,43 @@ namespace Goodreads.Conversion
                     YearPublished = item.YearPublished,
                     ISBN = item.ISBN,
                     Binding = item.Binding,
-                    Publisher = item.PubName.Replace("'","''"),
+                    Publisher = item.PubName,//.Replace("'","''"),
                     Shelf = item.ShelfName,
-                    CoAuthors = item.CoAuthorNames,
-                    AuthorFN = item.AuthorName.Split(' ')[0].Replace("'","''"),
-                    AuthorLN = item.AuthorName.Split(' ')[^1].Replace("'","''")
+                    // AuthorFN = first.Replace("'","''"),
+                    // AuthorLN = last.Replace("'","''")
                 };
+                
+                string first = item.AuthorName.Trim().Split(' ')[0].Trim();
+                string last = item.AuthorName.Trim().Split(' ')[^1].Trim();
+                Author? find = authors.Find(author => author.FirstName.Equals(first) && author.LastName.Equals(last));
+                if (find == null)
+                {
+                    int stopher = 0;
+                }
+                b.AuthorID = find.ID;
+                
+                b.CoAuthors = FindCoAuthors(authors, b, item);
                 books.Add(b);
             }
 
             return books;
+        }
+
+        private List<int> FindCoAuthors(List<Author> authors, Book book, GoodreadsItem goodreadsItem)
+        {
+            List<int> ids = new();
+            foreach (string authorName in goodreadsItem.CoAuthorNames)
+            {
+                string first = authorName.Trim().Split(' ')[0].Trim();
+                string last = authorName.Trim().Split(' ')[^1].Trim();
+                Author? find = authors.Find(author => author.FirstName.Equals(first) && author.LastName.Equals(last));
+                if (find == null)
+                {
+                    int stopher = 0;
+                }
+                ids.Add(find.ID);
+            }
+            return ids;
         }
 
         private void AddCoAuthors(List<Author> authors, List<GoodreadsItem> items)
@@ -95,9 +124,10 @@ namespace Goodreads.Conversion
 
         private static void CreateSingleAuthor(string[] strings, List<Author> authors)
         {
+            
             Author author = new ();
-            author.FirstName = strings[0].Replace("'", "''");
-            author.LastName = strings[^1].Replace("'", "''");
+            author.FirstName = strings[0];//.Replace("'", "''");
+            author.LastName = strings[^1];//.Replace("'", "''");
             if (strings.Length > 2)
             {
                 string middleName = "";
@@ -114,6 +144,7 @@ namespace Goodreads.Conversion
 
             if (!authors.Any(a => a.FirstName.Equals(strings[0]) && a.LastName.Equals(strings[^1])))
             {
+                author.ID = authors.Count;
                 authors.Add(author);
             }
         }

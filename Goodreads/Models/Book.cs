@@ -22,12 +22,14 @@ namespace Goodreads.Models
         public string DateRead { get; set; }
 
         // FKs
-        public string AuthorFN { get; set; }
-        public string AuthorLN { get; set; }
+        // public string AuthorFN { get; set; }
+        // public string AuthorLN { get; set; }
+
+        public int AuthorID { get; set; }
         public string Binding { get; set; }
         public string Shelf { get; set; }
         public string Publisher { get; set; }
-        public List<string> CoAuthors { get; set; }
+        public List<int> CoAuthors { get; set; }
         public HashSet<string> Genres { get; set; } = new();
     }
 }

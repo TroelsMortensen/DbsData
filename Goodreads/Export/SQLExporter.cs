@@ -62,10 +62,9 @@ namespace Goodreads.Export
             foreach (Book book in books)
             {
                 if (book.CoAuthors.Count == 0) continue;
-                foreach (string coAuthor in book.CoAuthors)
+                foreach (int coAuthor in book.CoAuthors)
                 {
-                    string[] authorNames = coAuthor.Trim().Split(" ");
-                    string sql = $"INSERT INTO co_authors VALUES('{book.BookId}', '{authorNames[0]}', '{authorNames[^1]}');";
+                    string sql = $"INSERT INTO co_authors VALUES('{book.BookId}', {coAuthor});";
                     file.WriteLine(sql);
                 }
             }
@@ -83,12 +82,13 @@ namespace Goodreads.Export
                 string date = !String.IsNullOrEmpty(book.DateRead) ? $"'{book.DateRead}'" : "NULL";
                 string myRating = book.MyRating == null ? "NULL" : book.MyRating.ToString();
                 string isbn = String.IsNullOrEmpty(book.ISBN) ? "NULL" : $"'{book.ISBN}'";
-                string bookPublisher = String.IsNullOrEmpty(book.Publisher) ? "NULL" : $"'{book.Publisher}'";
+                string bookPublisher = String.IsNullOrEmpty(book.Publisher) ? "NULL" : $"'{book.Publisher.Replace("'","''")}'";
                 var bookBinding = String.IsNullOrEmpty(book.Binding) ? "NULL" : $"'{book.Binding}'";
+                var bookTitle = book.Title.Replace("'","''");
                 file.WriteLine($"INSERT INTO book VALUES(" +
                                $"'{book.BookId}'," +
                                $"{isbn}," +
-                               $"'{book.Title}'," +
+                               $"'{bookTitle}'," +
                                $"{myRating}," +
                                $"{avgRating}," +
                                $"{pageCount}," +
@@ -97,8 +97,7 @@ namespace Goodreads.Export
                                $"{bookBinding}," +
                                $"{bookPublisher}," +
                                $"'{book.Shelf}'," +
-                               $"'{book.AuthorFN}'," +
-                               $"'{book.AuthorLN}'" +
+                               $"{book.AuthorID}" +
                                $");");
             }
         }
@@ -109,8 +108,10 @@ namespace Goodreads.Export
             file.WriteLine("SET SCHEMA 'goodreads';");
             foreach (Author author in authors)
             {
+                string middleName = author.MiddelNames?.Replace("'","''");
+                middleName = String.IsNullOrEmpty(middleName) ? "NULL" : "'" + middleName + "'";
                 file.WriteLine(
-                    $"INSERT INTO author VALUES('{author.FirstName}', '{author.MiddelNames}', '{author.LastName}');");
+                    $"INSERT INTO author VALUES({author.ID},'{author.FirstName.Replace("'","''")}', {middleName}, '{author.LastName.Replace("'","''")}');");
             }
         }
 
@@ -120,7 +121,7 @@ namespace Goodreads.Export
             file.WriteLine("SET SCHEMA 'goodreads';");
             foreach (string x in publishers)
             {
-                file.WriteLine($"INSERT INTO publisher VALUES('{x}');");
+                file.WriteLine($"INSERT INTO publisher VALUES('{x.Replace("'","''")}');");
             }
         }
 
