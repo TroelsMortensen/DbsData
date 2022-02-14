@@ -14,7 +14,7 @@ namespace Goodreads.Import
     {
         public void AddGenres(List<Book> books)
         {
-            using StreamReader reader = new StreamReader("BooksWithGenres.txt");
+            using StreamReader reader = new StreamReader(@"C:\TRMO\RiderProjects\DbsData\Goodreads\BooksWithGenres.txt");
             string line;
             while ((line = reader.ReadLine()) != null)
             {
@@ -40,6 +40,7 @@ namespace Goodreads.Import
 
         private static HashSet<string> GetFromGoodreads(string id)
         {
+            Console.WriteLine("Retrieving " + id);
             string urlAddress = "https://www.goodreads.com/book/show/" + id;
 
             HttpWebRequest request = (HttpWebRequest) WebRequest.Create(urlAddress);
@@ -76,7 +77,7 @@ namespace Goodreads.Import
 
         public void StoreBookIds(List<Book> containerBooks)
         {
-            using StreamWriter file = new StreamWriter("Books.txt");
+            using StreamWriter file = new StreamWriter(@"C:\TRMO\RiderProjects\DbsData\Goodreads\Books.txt");
             foreach (Book book in containerBooks)
             {
                 file.WriteLine(book.BookId);
@@ -87,9 +88,9 @@ namespace Goodreads.Import
         {
             // first check which I have the data from
             HashSet<string> hasFetched = new();
-            if (File.Exists("BooksWithGenres.txt"))
+            if (File.Exists(@"C:\TRMO\RiderProjects\DbsData\Goodreads\BooksWithGenres.txt"))
             {
-                using StreamReader readerHasCompleted = new StreamReader("BooksWithGenres.txt");
+                using StreamReader readerHasCompleted = new StreamReader(@"C:\TRMO\RiderProjects\DbsData\Goodreads\BooksWithGenres.txt");
                 string line;
                 while ((line = readerHasCompleted.ReadLine()) != null)
                 {
@@ -98,8 +99,8 @@ namespace Goodreads.Import
             }
             
             // now try to fetch more data
-            using StreamReader readerAllBooks = new StreamReader("Books.txt");
-            using StreamWriter writer = new StreamWriter("BooksWithGenres.txt", true);
+            using StreamReader readerAllBooks = new StreamReader(@"C:\TRMO\RiderProjects\DbsData\Goodreads\Books.txt");
+            using StreamWriter writer = new StreamWriter(@"C:\TRMO\RiderProjects\DbsData\Goodreads\BooksWithGenres.txt", true);
 
             try
             {
