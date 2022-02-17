@@ -11,17 +11,28 @@ namespace Goodreads
     {
         static void Main(string[] args)
         {
-            // List<GoodreadsItem> items = new CSVImporter().ImportItems(@"C:\TRMO\RiderProjects\DbsData\Goodreads\goodreads_library_export.csv");
-            //
-            // DataBaseModelContainer container = new Converter().Convert(items);
-            
+            // import data from csv file
+            List<GoodreadsItem> items = new CSVImporter().ImportItems(@"C:\TRMO\RiderProjects\DbsData\Goodreads\goodreads_library_export.csv");
+            Console.WriteLine("Import from csv done.");
+            // convert to C# model classes
+            DataBaseModelContainer container = new Converter().ConvertFromCsvModelToDbModel(items);
+            Console.WriteLine("Adding users..");
+            UserHandler.AddUsers(container);
+            Console.WriteLine("All users added");
             // new GenreImporter().StoreBookIds(container.Books); 
-            
-            // new GenreImporter().AddGenres(container.Books);
-            
-            // new SQLExporter().Export(container);
-            //
-            new GenreImporter().FetchOneByOne();
+
+            // add genres to the model classes
+            Console.WriteLine("Adding genres to books, and container..");
+            new GenreImporter().AddGenres(container.Books, container);
+            Console.WriteLine("Done");
+            // export to sql
+            Console.WriteLine("Exporting sql..");
+            new SQLExporter().Export(container);
+            Console.WriteLine("Done exporting sql");
+
+
+            // fetches all genres. Run this multiple times, because I can contact goodreads a limited number, before being locked out. Wait, run again. Progress is stored in a file, so as to not start over
+            // new GenreImporter().FetchOneByOne();
         }
     }
 }

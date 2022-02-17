@@ -11,25 +11,26 @@ namespace Goodreads.Models
 
         public string Title { get; set; }
 
-        public int? MyRating { get; set; }
+        // public int? MyRating { get; set; }
 
-        public decimal AvgRating { get; set; }
+        // public decimal AvgRating { get; set; }
 
         public int? PageCount { get; set; }
 
         public int? YearPublished { get; set; }
 
-        public string DateRead { get; set; }
 
         // FKs
         // public string AuthorFN { get; set; }
         // public string AuthorLN { get; set; }
 
         public int AuthorID { get; set; }
-        public string Binding { get; set; }
-        public string Shelf { get; set; }
-        public string Publisher { get; set; }
+
+        public int? BindingId { get; set; }
+
+        // public string Shelf { get; set; }
+        public int? PublisherId { get; set; }
         public List<int> CoAuthors { get; set; }
-        public HashSet<string> Genres { get; set; } = new();
+        public HashSet<int> GenreIds { get; set; } = new();
     }
 }

@@ -12,9 +12,18 @@ namespace Goodreads.Import
 {
     public class GenreImporter
     {
-        public void AddGenres(List<Book> books)
+        private string path = @"C:\TRMO\RiderProjects\DbsData\Goodreads\BooksWithGenres.txt";
+        
+        /**
+         * Reads genres from a file. Then for each book, the genres are attached.
+         */
+        public void AddGenres(List<Book> books, DataBaseModelContainer container)
         {
-            using StreamReader reader = new StreamReader(@"C:\TRMO\RiderProjects\DbsData\Goodreads\BooksWithGenres.txt");
+
+            Dictionary<string, int> genres = CollectAllGenres();
+            
+            
+            using StreamReader reader = new(path);
             string line;
             while ((line = reader.ReadLine()) != null)
             {
@@ -22,21 +31,61 @@ namespace Goodreads.Import
                 Book book = books.First(b => b.BookId.Equals(strings[0]));
                 for (int i = 1; i < strings.Length; i++)
                 {
-                    book.Genres.Add(strings[i]);
+                    book.GenreIds.Add(genres[strings[i]]);
                 }
             }
-            
+
+            AddGenreContainers(container, genres);
         }
 
-        private void GetGenres(Book book)
+        private void AddGenreContainers(DataBaseModelContainer container, Dictionary<string,int> genres)
         {
-            string id = book.BookId;
-            
-            var genres = GetFromGoodreads(id);
+            List<GenreContainer> list = new();
+            foreach (string key in genres.Keys)
+            {
+                int genreId = genres[key];
+                list.Add(new GenreContainer
+                {
+                    Genre = key,
+                    Id = genreId
+                });
+            }
 
-            book.Genres = genres;
-            int stopher = 0;
+            container.Genres = list;
         }
+
+        private Dictionary<string, int> CollectAllGenres()
+        {
+            Dictionary<string, int> genres = new();
+            using StreamReader reader = new StreamReader(path);
+            string line;
+            int idx = 0;
+            while ((line = reader.ReadLine()) != null)
+            {
+                var strings = line.Split(",");
+                for (int i = 1; i < strings.Length; i++)
+                {
+                    if (!genres.ContainsKey(strings[i]))
+                    {
+                        idx++;
+                        genres.Add(strings[i], idx);
+                    }
+                }
+            }
+
+            return genres;
+        }
+
+
+        // private void GetGenres(Book book)
+        // {
+        //     string id = book.BookId;
+        //     
+        //     HashSet<string> genres = GetFromGoodreads(id);
+        //
+        //     book.Genres = genres;
+        //     int stopher = 0;
+        // }
 
         private static HashSet<string> GetFromGoodreads(string id)
         {
